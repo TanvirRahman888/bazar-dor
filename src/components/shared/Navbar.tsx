@@ -62,12 +62,10 @@ export default function Navbar() {
     setFormattedDate(banglaDate);
   }, []);
 
-
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-200/70 bg-white/80 backdrop-blur-xl">
-      {/* ================= TOP NAVBAR ================= */}
       <div className="border-b border-gray-200/70">
-        <div className="mx-auto flex h-17 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto flex h-17 items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-600 text-xl text-white shadow-sm">
@@ -144,7 +142,7 @@ export default function Navbar() {
 
       {/* ================= CATEGORY NAV ================= */}
       <nav className="bg-white/60 backdrop-blur-xl">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {/* Desktop Categories */}
           <div className="hidden h-14 items-center gap-2 overflow-x-auto md:flex">
             {loading ? (

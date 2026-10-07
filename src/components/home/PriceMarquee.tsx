@@ -19,7 +19,7 @@ const PriceMarquee = async () => {
   );
 
   return (
-    <div className="">
+    <div className="my-2">
       <MarqueeText
         playOnlyInView={true}
         duration={10}
