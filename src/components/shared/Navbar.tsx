@@ -47,14 +47,21 @@ export default function Navbar() {
     setMenuOpen(false);
   }, [pathname]);
 
-  const date = new Date();
+  const [formattedDate, setFormattedDate] = useState("");
 
-  const formattedDate = new Intl.DateTimeFormat("bn-BD", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(date);
+  useEffect(() => {
+    const date = new Date();
+
+    const banglaDate = new Intl.DateTimeFormat("bn-BD", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }).format(date);
+
+    setFormattedDate(banglaDate);
+  }, []);
+
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-200/70 bg-white/80 backdrop-blur-xl">

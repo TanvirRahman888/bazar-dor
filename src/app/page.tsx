@@ -1,8 +1,9 @@
-
+import PriceMarquee from "@/components/home/PriceMarquee";
 
 export default function Home() {
   return (
-    <div className="container mx-auto">
+    <div className="">
+      <PriceMarquee />
       Home page
     </div>
   );
