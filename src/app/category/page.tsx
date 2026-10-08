@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-interface iCategory {
+export interface iCategory {
   id: string;
   slug: string;
   nameBn: string;
