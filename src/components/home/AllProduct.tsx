@@ -1,10 +1,14 @@
 import ProductCard from "../product/ProductCard";
 import SortDropdown from "../product/SortDropdown";
 
+export const getProducts= async ()=>{
+    const res = await fetch("https://api.abcz.workers.dev/api/bazardor/products")
+    return res.json()
+}
 
 const AllProduct =async () => {
-    const res = await fetch("https://api.abcz.workers.dev/api/bazardor/products")
-    const products= await res.json()
+    
+    const products= await getProducts()
     return (
         <div className="container mx-auto px-8 ">
             <div >
