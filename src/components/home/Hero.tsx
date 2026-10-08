@@ -1,14 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import CurrentDate from "../shared/CurrentDate";
+
 
 const Hero = () => {
-  const formattedDate = new Intl.DateTimeFormat("bn-BD", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(new Date());
+  
 
   return (
     <section className="py-8">
@@ -17,7 +13,7 @@ const Hero = () => {
           {/* Left Content */}
           <div>
             <span className="inline-flex rounded-full bg-emerald-100 px-4 py-1.5 text-sm font-medium text-emerald-700">
-              {formattedDate}
+              <CurrentDate />
             </span>
 
             <h1 className="mt-5 max-w-xl text-4xl font-bold leading-tight tracking-tight text-gray-950 sm:text-5xl lg:text-6xl">

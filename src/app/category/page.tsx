@@ -6,10 +6,20 @@ export interface iCategory {
   nameBn: string;
   icon: string;
 }
-export const getCategory = async () => {
+export const getCategory = async (): Promise<iCategory[]> => {
   const res = await fetch(
     "https://api.abcz.workers.dev/api/bazardor/categories",
+    {
+      next: {
+        revalidate: 360,
+      },
+    }
   );
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch categories");
+  }
+
   return res.json();
 };
 const Category = async () => {
