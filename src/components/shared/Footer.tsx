@@ -4,7 +4,7 @@ export default function Footer() {
     // const currentYear = new Date().getFullYear();
   return (
     <footer className="mt-16 border-t border-emerald-100 bg-linear-to-b from-white to-emerald-50/70">
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto container px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
           <div>
@@ -83,7 +83,7 @@ export default function Footer() {
               <ContactItem
                 icon={<PhoneIcon />}
                 title="ফোন"
-                value="+880 1XXX-XXXXXX"
+                value="+880 1234-567890"
               />
 
               <ContactItem
