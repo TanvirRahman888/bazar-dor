@@ -11,24 +11,61 @@ import {
   Label,
   TextField,
 } from "@heroui/react";
-import { Check, Envelope, Eye, EyeSlash, Lock, Person, PersonWorker } from "@gravity-ui/icons";
-
+import {
+  Check,
+  Envelope,
+  Eye,
+  EyeSlash,
+  Lock,
+  Person,
+  PersonWorker,
+} from "@gravity-ui/icons";
+import { signUp } from "@/lib/auth-client";
+import { toast } from "react-hot-toast";
 
 export default function SignUpPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const formData = new FormData(e.currentTarget);
 
-    const data = Object.fromEntries(formData.entries());
+    const name = String(formData.get("name") ?? "").trim();
+    const email = String(formData.get("email") ?? "").trim();
+    const password = String(formData.get("password") ?? "");
+    const confirmPassword = String(formData.get("confirmPassword") ?? "");
 
-    console.log(data);
+    const image = String(formData.get("image") ?? "").trim();
 
-    // Later add Better Auth signup here
+    if (password !== confirmPassword) {
+      console.log("Passwords do not match");
+      return;
+    }
+
+    const { data, error } = await signUp.email({
+      name,
+      email,
+      password,
+      image: image || undefined,
+
+      callbackURL: "/",
+    });
+
+    if (error) {
+      toast.error(`Sign up error : ${error.message}`);
+
+      return;
+    }
+
+    if (data.token) {
+      toast.success(`Sign up successful.`);
+      toast(`Hello ! ${data?.user?.name}`, {
+        icon: "👏",
+      });
+    }
   };
 
   return (
@@ -49,9 +86,7 @@ export default function SignUpPage() {
                 </div>
 
                 <div>
-                  <h2 className="text-2xl font-bold">
-                    বাজার দর
-                  </h2>
+                  <h2 className="text-2xl font-bold">বাজার দর</h2>
 
                   <p className="text-sm text-emerald-100">
                     প্রতিদিনের বাজার, এক জায়গায়
@@ -77,8 +112,8 @@ export default function SignUpPage() {
 
             <div className="relative z-10 mt-16 rounded-2xl border border-white/15 bg-white/10 p-5 backdrop-blur">
               <p className="text-sm leading-6 text-emerald-50">
-                চাল, ডাল, তেল, সবজি, মাছ, মাংসসহ প্রয়োজনীয় পণ্যের
-                প্রতিদিনের বাজারদর সহজেই জানতে পারবেন।
+                চাল, ডাল, তেল, সবজি, মাছ, মাংসসহ প্রয়োজনীয় পণ্যের প্রতিদিনের
+                বাজারদর সহজেই জানতে পারবেন।
               </p>
             </div>
           </div>
@@ -86,17 +121,12 @@ export default function SignUpPage() {
           {/* Right Section */}
           <div className="p-6 sm:p-10 lg:p-12">
             {/* Mobile Brand */}
-            <Link
-              href="/"
-              className="mb-8 flex items-center gap-3 lg:hidden"
-            >
+            <Link href="/" className="mb-8 flex items-center gap-3 lg:hidden">
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-600 text-xl text-white">
                 🛒
               </div>
 
-              <span className="text-xl font-bold text-gray-900">
-                বাজার দর
-              </span>
+              <span className="text-xl font-bold text-gray-900">বাজার দর</span>
             </Link>
 
             <div>
@@ -125,9 +155,7 @@ export default function SignUpPage() {
                   return null;
                 }}
               >
-                <Label className="font-medium text-gray-700">
-                  পূর্ণ নাম
-                </Label>
+                <Label className="font-medium text-gray-700">পূর্ণ নাম</Label>
 
                 <div className="relative">
                   <Person className="absolute left-3 top-1/2 z-10 h-5 w-5 -translate-y-1/2 text-gray-400" />
@@ -147,20 +175,14 @@ export default function SignUpPage() {
                 name="email"
                 type="email"
                 validate={(value) => {
-                  if (
-                    !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(
-                      value,
-                    )
-                  ) {
+                  if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value)) {
                     return "সঠিক ইমেইল ঠিকানা লিখুন";
                   }
 
                   return null;
                 }}
               >
-                <Label className="font-medium text-gray-700">
-                  ইমেইল
-                </Label>
+                <Label className="font-medium text-gray-700">ইমেইল</Label>
 
                 <div className="relative">
                   <Envelope className="absolute left-3 top-1/2 z-10 h-5 w-5 -translate-y-1/2 text-gray-400" />
@@ -196,9 +218,7 @@ export default function SignUpPage() {
                   return null;
                 }}
               >
-                <Label className="font-medium text-gray-700">
-                  পাসওয়ার্ড
-                </Label>
+                <Label className="font-medium text-gray-700">পাসওয়ার্ড</Label>
 
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 z-10 h-5 w-5 -translate-y-1/2 text-gray-400" />
@@ -263,9 +283,7 @@ export default function SignUpPage() {
 
                   <button
                     type="button"
-                    onClick={() =>
-                      setShowConfirmPassword((prev) => !prev)
-                    }
+                    onClick={() => setShowConfirmPassword((prev) => !prev)}
                     className="absolute right-3 top-1/2 z-10 -translate-y-1/2 text-gray-400 transition hover:text-emerald-600"
                     aria-label={
                       showConfirmPassword
@@ -301,9 +319,7 @@ export default function SignUpPage() {
               >
                 <Label className="font-medium text-gray-700">
                   প্রোফাইল ছবির লিংক{" "}
-                  <span className="font-normal text-gray-400">
-                    (ঐচ্ছিক)
-                  </span>
+                  <span className="font-normal text-gray-400">(ঐচ্ছিক)</span>
                 </Label>
 
                 <div className="relative">
