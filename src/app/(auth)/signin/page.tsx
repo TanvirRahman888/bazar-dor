@@ -48,16 +48,16 @@ export default function SignInPage() {
         signIn.social({
       provider: "google",
     });
-    
+
   };
 
   const handleGithubLogin = () => {
     console.log("GitHub login");
 
     // Later:
-    // authClient.signIn.social({
-    //   provider: "github",
-    // });
+    signIn.social({
+      provider: "github",
+    });
   };
 
   return (
