@@ -10,27 +10,38 @@ import {
   Label,
   TextField,
 } from "@heroui/react";
-import {
-  Eye,
-  EyeSlash,
-  Lock,
-  Envelope,
-} from "@gravity-ui/icons";
+import { Eye, EyeSlash, Lock, Envelope } from "@gravity-ui/icons";
+import { signIn } from "@/lib/auth-client";
+import { toast } from "react-hot-toast";
 
 export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+    const form = e.currentTarget;
     const formData = new FormData(e.currentTarget);
 
-    const data = Object.fromEntries(formData.entries());
+    const email = String(formData.get("email") ?? "").trim();
+    const password = String(formData.get("password") ?? "").trim();
 
-    console.log(data);
-
-    // Later:
-    // Better Auth email/password login
+    // Email Password Login
+    const { data, error } = await signIn.email({
+      email,
+      password,
+      rememberMe: true,
+      callbackURL: "/profile",
+    });
+    if (data?.token) {
+      toast.success(`Hello ! ${data?.user?.name}`, {
+        icon: "👏",
+      });
+      form.reset();
+    }
+    if (error) {
+        toast.error(error.message ?? "Sign in failed. Please try again.");
+        form.reset();
+    }
   };
 
   const handleGoogleLogin = () => {
@@ -55,10 +66,8 @@ export default function SignInPage() {
     <main className="min-h-screen bg-[#f4f8f4] px-4 py-10">
       <div className="container mx-auto">
         <div className="mx-auto grid max-w-5xl overflow-hidden rounded-3xl border border-emerald-100 bg-white shadow-xl shadow-emerald-100/50 lg:grid-cols-2">
-
           {/* ================= Left Side ================= */}
           <div className="relative hidden overflow-hidden bg-emerald-600 p-10 text-white lg:flex lg:flex-col lg:justify-between">
-
             {/* Decoration */}
             <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10" />
 
@@ -66,18 +75,13 @@ export default function SignInPage() {
 
             <div className="relative z-10">
               {/* Logo */}
-              <Link
-                href="/"
-                className="inline-flex items-center gap-3"
-              >
+              <Link href="/" className="inline-flex items-center gap-3">
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15 text-2xl backdrop-blur">
                   🛒
                 </div>
 
                 <div>
-                  <h2 className="text-2xl font-bold">
-                    বাজার দর
-                  </h2>
+                  <h2 className="text-2xl font-bold">বাজার দর</h2>
 
                   <p className="text-sm text-emerald-100">
                     প্রতিদিনের বাজার, এক জায়গায়
@@ -96,35 +100,29 @@ export default function SignInPage() {
                 </h1>
 
                 <p className="mt-5 max-w-md leading-7 text-emerald-100">
-                  আপনার অ্যাকাউন্টে সাইন ইন করে প্রতিদিনের বাজারদর,
-                  পণ্যের দামের পরিবর্তন এবং বিভিন্ন বাজারের তথ্য দেখুন।
+                  আপনার অ্যাকাউন্টে সাইন ইন করে প্রতিদিনের বাজারদর, পণ্যের দামের
+                  পরিবর্তন এবং বিভিন্ন বাজারের তথ্য দেখুন।
                 </p>
               </div>
             </div>
 
             <div className="relative z-10 mt-16 rounded-2xl border border-white/15 bg-white/10 p-5 backdrop-blur">
               <p className="text-sm leading-6 text-emerald-50">
-                চাল, ডাল, তেল, সবজি, মাছ ও মাংসসহ প্রয়োজনীয় পণ্যের
-                সর্বশেষ বাজারদর এক জায়গায়।
+                চাল, ডাল, তেল, সবজি, মাছ ও মাংসসহ প্রয়োজনীয় পণ্যের সর্বশেষ
+                বাজারদর এক জায়গায়।
               </p>
             </div>
           </div>
 
           {/* ================= Right Side ================= */}
           <div className="p-6 sm:p-10 lg:p-12">
-
             {/* Mobile Logo */}
-            <Link
-              href="/"
-              className="mb-8 flex items-center gap-3 lg:hidden"
-            >
+            <Link href="/" className="mb-8 flex items-center gap-3 lg:hidden">
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-600 text-xl text-white">
                 🛒
               </div>
 
-              <span className="text-xl font-bold text-gray-900">
-                বাজার দর
-              </span>
+              <span className="text-xl font-bold text-gray-900">বাজার দর</span>
             </Link>
 
             {/* Heading */}
@@ -140,7 +138,6 @@ export default function SignInPage() {
 
             {/* ================= Social Login ================= */}
             <div className="mt-8 grid gap-3 sm:grid-cols-2">
-
               {/* Google */}
               <Button
                 type="button"
@@ -149,7 +146,6 @@ export default function SignInPage() {
                 className="flex w-full items-center justify-center gap-3 rounded-xl border border-gray-200 bg-white py-3 font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"
               >
                 <GoogleIcon />
-
                 Google
               </Button>
 
@@ -161,7 +157,6 @@ export default function SignInPage() {
                 className="flex w-full items-center justify-center gap-3 rounded-xl border border-gray-200 bg-white py-3 font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"
               >
                 <GithubIcon />
-
                 GitHub
               </Button>
             </div>
@@ -170,39 +165,27 @@ export default function SignInPage() {
             <div className="my-7 flex items-center gap-4">
               <div className="h-px flex-1 bg-gray-200" />
 
-              <span className="text-xs text-gray-400">
-                অথবা ইমেইল দিয়ে
-              </span>
+              <span className="text-xs text-gray-400">অথবা ইমেইল দিয়ে</span>
 
               <div className="h-px flex-1 bg-gray-200" />
             </div>
 
             {/* ================= Form ================= */}
-            <Form
-              className="flex w-full flex-col gap-5"
-              onSubmit={onSubmit}
-            >
-
+            <Form className="flex w-full flex-col gap-5" onSubmit={onSubmit}>
               {/* Email */}
               <TextField
                 isRequired
                 name="email"
                 type="email"
                 validate={(value) => {
-                  if (
-                    !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(
-                      value
-                    )
-                  ) {
+                  if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value)) {
                     return "সঠিক ইমেইল ঠিকানা লিখুন";
                   }
 
                   return null;
                 }}
               >
-                <Label className="font-medium text-gray-700">
-                  ইমেইল
-                </Label>
+                <Label className="font-medium text-gray-700">ইমেইল</Label>
 
                 <div className="relative">
                   <Envelope className="absolute left-3 top-1/2 z-10 h-5 w-5 -translate-y-1/2 text-gray-400" />
@@ -223,9 +206,7 @@ export default function SignInPage() {
                 type={showPassword ? "text" : "password"}
               >
                 <div className="flex items-center justify-between">
-                  <Label className="font-medium text-gray-700">
-                    পাসওয়ার্ড
-                  </Label>
+                  <Label className="font-medium text-gray-700">পাসওয়ার্ড</Label>
 
                   <Link
                     href="/forgot-password"
@@ -245,14 +226,10 @@ export default function SignInPage() {
 
                   <button
                     type="button"
-                    onClick={() =>
-                      setShowPassword((prev) => !prev)
-                    }
+                    onClick={() => setShowPassword((prev) => !prev)}
                     className="absolute right-3 top-1/2 z-10 -translate-y-1/2 text-gray-400 transition hover:text-emerald-600"
                     aria-label={
-                      showPassword
-                        ? "Hide password"
-                        : "Show password"
+                      showPassword ? "Hide password" : "Show password"
                     }
                   >
                     {showPassword ? (
@@ -273,7 +250,6 @@ export default function SignInPage() {
                   name="remember"
                   className="h-4 w-4 rounded border-gray-300 accent-emerald-600"
                 />
-
                 আমাকে মনে রাখুন
               </label>
 
@@ -289,7 +265,6 @@ export default function SignInPage() {
             {/* Signup */}
             <p className="mt-7 text-center text-sm text-gray-500">
               অ্যাকাউন্ট নেই?{" "}
-
               <Link
                 href="/signup"
                 className="font-semibold text-emerald-600 transition hover:text-emerald-700 hover:underline"
@@ -308,10 +283,7 @@ export default function SignInPage() {
 
 function GoogleIcon() {
   return (
-    <svg
-      className="h-5 w-5"
-      viewBox="0 0 24 24"
-    >
+    <svg className="h-5 w-5" viewBox="0 0 24 24">
       <path
         fill="#4285F4"
         d="M21.6 12.23c0-.71-.06-1.4-.18-2.07H12v3.92h5.38a4.6 4.6 0 0 1-2 3.02v2.51h3.24c1.9-1.75 2.98-4.33 2.98-7.38Z"
@@ -339,11 +311,7 @@ function GoogleIcon() {
 
 function GithubIcon() {
   return (
-    <svg
-      className="h-5 w-5"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-    >
+    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
       <path d="M12 .7a11.3 11.3 0 0 0-3.57 22.03c.56.1.77-.24.77-.54v-2.1c-3.13.68-3.79-1.33-3.79-1.33-.51-1.3-1.25-1.65-1.25-1.65-1.02-.7.08-.68.08-.68 1.13.08 1.72 1.16 1.72 1.16 1 1.72 2.63 1.22 3.27.93.1-.73.39-1.22.71-1.5-2.5-.28-5.13-1.25-5.13-5.58 0-1.23.44-2.24 1.16-3.03-.12-.28-.5-1.43.11-2.99 0 0 .95-.3 3.11 1.16A10.8 10.8 0 0 1 12 6.2c.96 0 1.93.13 2.84.38 2.16-1.46 3.1-1.16 3.1-1.16.62 1.56.23 2.71.12 2.99.72.79 1.15 1.8 1.15 3.03 0 4.34-2.64 5.29-5.15 5.57.4.35.76 1.04.76 2.1v3.08c0 .3.2.65.77.54A11.3 11.3 0 0 0 12 .7Z" />
     </svg>
   );
