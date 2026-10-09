@@ -22,14 +22,17 @@ import {
 } from "@gravity-ui/icons";
 import { signUp } from "@/lib/auth-client";
 import { toast } from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 export default function SignUpPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const router = useRouter();
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const form = e.currentTarget;
 
     const formData = new FormData(e.currentTarget);
 
@@ -51,7 +54,7 @@ export default function SignUpPage() {
       password,
       image: image || undefined,
 
-      callbackURL: "/",
+      callbackURL: "/profile",
     });
 
     if (error) {
@@ -65,6 +68,9 @@ export default function SignUpPage() {
       toast(`Hello ! ${data?.user?.name}`, {
         icon: "👏",
       });
+      form.reset();
+      setPassword("");
+      router.push("/profile");
     }
   };
 
@@ -147,6 +153,7 @@ export default function SignUpPage() {
               <TextField
                 isRequired
                 name="name"
+                aria-label="পূর্ণ নাম"
                 validate={(value) => {
                   if (value.trim().length < 2) {
                     return "নাম কমপক্ষে ২ অক্ষরের হতে হবে";
@@ -174,6 +181,7 @@ export default function SignUpPage() {
                 isRequired
                 name="email"
                 type="email"
+                aria-label="ইমেইল"
                 validate={(value) => {
                   if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value)) {
                     return "সঠিক ইমেইল ঠিকানা লিখুন";
@@ -202,6 +210,7 @@ export default function SignUpPage() {
                 name="password"
                 minLength={8}
                 type={showPassword ? "text" : "password"}
+                aria-label="পাসওয়ার্ড"
                 validate={(value) => {
                   if (value.length < 8) {
                     return "পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে";
@@ -257,6 +266,7 @@ export default function SignUpPage() {
                 isRequired
                 name="confirmPassword"
                 type={showConfirmPassword ? "text" : "password"}
+                aria-label="পাসওয়ার্ড নিশ্চিত করুন"
                 validate={(value) => {
                   if (!value) {
                     return "পাসওয়ার্ড আবার লিখুন";
@@ -306,6 +316,7 @@ export default function SignUpPage() {
               <TextField
                 name="image"
                 type="url"
+                aria-label="প্রোফাইল ছবির লিংক"
                 validate={(value) => {
                   if (!value) return null;
 
