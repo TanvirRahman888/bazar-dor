@@ -45,12 +45,10 @@ export default function SignInPage() {
   };
 
   const handleGoogleLogin = () => {
-    console.log("Google login");
-
-    // Later:
-    // authClient.signIn.social({
-    //   provider: "google",
-    // });
+        signIn.social({
+      provider: "google",
+    });
+    
   };
 
   const handleGithubLogin = () => {
