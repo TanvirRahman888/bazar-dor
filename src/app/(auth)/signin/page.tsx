@@ -13,9 +13,21 @@ import {
 import { Eye, EyeSlash, Lock, Envelope } from "@gravity-ui/icons";
 import { signIn } from "@/lib/auth-client";
 import { toast } from "react-hot-toast";
+import { useSearchParams } from "next/navigation";
 
 export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);
+
+  const searchParams = useSearchParams();
+
+  const requestedURL = searchParams.get("callbackURL");
+
+  const callbackURL =
+    requestedURL &&
+    requestedURL.startsWith("/") &&
+    !requestedURL.startsWith("//")
+      ? requestedURL
+      : "/";
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -30,7 +42,7 @@ export default function SignInPage() {
       email,
       password,
       rememberMe: true,
-      callbackURL: "/profile",
+      callbackURL,
     });
     if (data?.token) {
       toast.success(`Hello ! ${data?.user?.name}`, {
@@ -39,26 +51,68 @@ export default function SignInPage() {
       form.reset();
     }
     if (error) {
-        toast.error(error.message ?? "Sign in failed. Please try again.");
-        form.reset();
+      toast.error(error.message ?? "Sign in failed. Please try again.");
+      form.reset();
     }
   };
 
-  const handleGoogleLogin = () => {
-        signIn.social({
+ const handleGoogleLogin = async () => {
+  const toastId = toast.loading("Connecting to Google...");
+
+  try {
+    const { error } = await signIn.social({
       provider: "google",
+      callbackURL,
     });
 
-  };
+    if (error) {
+      toast.error(
+        error.message ?? "Google sign in failed",
+        { id: toastId },
+      );
+      return;
+    }
 
-  const handleGithubLogin = () => {
-    console.log("GitHub login");
+    toast.success("Redirecting to Google...", {
+      id: toastId,
+    });
+  } catch (error) {
+    console.error("Google login error:", error);
 
-    // Later:
-    signIn.social({
+    toast.error("Google sign in failed", {
+      id: toastId,
+    });
+  }
+};
+
+const handleGithubLogin = async () => {
+  const toastId = toast.loading("Connecting to GitHub...");
+
+  try {
+    const { error } = await signIn.social({
       provider: "github",
+      callbackURL,
     });
-  };
+
+    if (error) {
+      toast.error(
+        error.message ?? "GitHub sign in failed",
+        { id: toastId },
+      );
+      return;
+    }
+
+    toast.success("Redirecting to GitHub...", {
+      id: toastId,
+    });
+  } catch (error) {
+    console.error("GitHub login error:", error);
+
+    toast.error("GitHub sign in failed", {
+      id: toastId,
+    });
+  }
+};
 
   return (
     <main className="min-h-screen bg-[#f4f8f4] px-4 py-10">
