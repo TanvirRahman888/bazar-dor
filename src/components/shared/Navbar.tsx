@@ -1,8 +1,11 @@
 "use client";
 
+import { signOut, useSession } from "@/lib/auth-client";
+import { ArrowRightToSquare, PersonWorker } from "@gravity-ui/icons";
+import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
 type Category = {
   id: string;
@@ -13,16 +16,28 @@ type Category = {
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-  const [menuOpen, setMenuOpen] = useState(false);
 
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [logoutLoading, setLogoutLoading] = useState(false);
+
+  const profileRef = useRef<HTMLDivElement>(null);
+
+  // Better Auth session
+  const { data: session, isPending } = useSession();
+
+  const user = session?.user;
+
+  // ================= Categories =================
   useEffect(() => {
     const getCategories = async () => {
       try {
         const response = await fetch(
-          "https://api.abcz.workers.dev/api/bazardor/categories",
+          "https://api.api-store.workers.dev/api/bazardor/categories",
         );
 
         if (!response.ok) {
@@ -42,31 +57,71 @@ export default function Navbar() {
     getCategories();
   }, []);
 
-  // Close mobile menu after route change
+  // ================= Close menus after route change =================
   useEffect(() => {
     setMenuOpen(false);
+    setProfileOpen(false);
   }, [pathname]);
 
+  // ================= Current Date =================
   const [formattedDate, setFormattedDate] = useState("");
 
   useEffect(() => {
-    const date = new Date();
-
     const banglaDate = new Intl.DateTimeFormat("bn-BD", {
       weekday: "long",
       day: "numeric",
       month: "long",
       year: "numeric",
-    }).format(date);
+    }).format(new Date());
 
     setFormattedDate(banglaDate);
   }, []);
 
+  // ================= Close profile dropdown outside =================
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        profileRef.current &&
+        !profileRef.current.contains(event.target as Node)
+      ) {
+        setProfileOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // ================= Logout =================
+  const handleLogout = async () => {
+    try {
+      setLogoutLoading(true);
+
+      await signOut();
+
+      setProfileOpen(false);
+      setMenuOpen(false);
+
+      router.push("/signin");
+      router.refresh();
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      setLogoutLoading(false);
+    }
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-200/70 bg-white/80 backdrop-blur-xl">
-      <div className="border-b border-gray-200/70">
+      {/* ================= TOP NAVBAR ================= */}
+
+      <div className="relative z-50 border-b border-gray-200/70 bg-white/95">
         <div className="container mx-auto flex h-17 items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Logo */}
+
           <Link href="/" className="flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-600 text-xl text-white shadow-sm">
               🛒
@@ -83,24 +138,139 @@ export default function Navbar() {
             </div>
           </Link>
 
-          {/* Desktop Auth Buttons */}
-          <div className="hidden items-center gap-6 md:flex">
-            <Link
-              href="/signin"
-              className="font-semibold text-gray-800 transition hover:text-emerald-600"
-            >
-              সাইন ইন
-            </Link>
+          {/* ================= DESKTOP AUTH ================= */}
 
-            <Link
-              href="/signup"
-              className="rounded-lg bg-emerald-600 px-5 py-2.5 font-semibold text-white shadow-sm transition hover:bg-emerald-700"
-            >
-              সাইন আপ
-            </Link>
+          <div className="hidden items-center md:flex">
+            {isPending ? (
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 animate-pulse rounded-full bg-gray-200" />
+                <div className="h-4 w-24 animate-pulse rounded bg-gray-200" />
+              </div>
+            ) : user ? (
+              <div ref={profileRef} className="relative z-25">
+                {/* Dropdown trigger */}
+                <button
+                  type="button"
+                  onClick={() => setProfileOpen((prev) => !prev)}
+                  className="flex items-center gap-2 rounded-xl px-2 py-1.5 transition hover:bg-gray-100"
+                  aria-label="Open profile menu"
+                  aria-expanded={profileOpen}
+                >
+                  {user.image ? (
+                    <Image
+                      src={user.image}
+                      alt={user.name ?? "User"}
+                      width={40}
+                      height={40}
+                      className="h-10 w-10 rounded-full border border-emerald-100 object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-600 font-bold text-white">
+                      {user.name?.charAt(0).toUpperCase() || "U"}
+                    </div>
+                  )}
+
+                  <span className="max-w-36 truncate text-sm font-semibold text-gray-800">
+                    {user.name}
+                  </span>
+
+                  <svg
+                    className={`h-4 w-4 text-gray-500 transition-transform duration-200 ${
+                      profileOpen ? "rotate-180" : ""
+                    }`}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="m6 9 6 6 6-6" />
+                  </svg>
+                </button>
+
+                {/* Dropdown */}
+                <div
+                  className={`absolute right-0 top-full z-25 mt-2 w-72 origin-top-right overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl shadow-gray-200/70 transition-all duration-200 ${
+                    profileOpen
+                      ? "visible translate-y-0 scale-100 opacity-100"
+                      : "invisible -translate-y-2 scale-95 opacity-0"
+                  }`}
+                >
+                  {/* User info */}
+                  <div className="border-b border-gray-100 p-4">
+                    <div className="flex items-center gap-3">
+                      {user.image ? (
+                        <Image
+                          src={user.image}
+                          alt={user.name ?? "User"}
+                          width={48}
+                          height={48}
+                          className="h-12 w-12 shrink-0 rounded-full border border-emerald-100 object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-lg font-bold text-emerald-700">
+                          {user.name?.charAt(0).toUpperCase() || "U"}
+                        </div>
+                      )}
+
+                      <div className="min-w-0">
+                        <p className="truncate font-semibold text-gray-900">
+                          {user.name}
+                        </p>
+
+                        <p className="mt-0.5 truncate text-xs text-gray-500">
+                          {user.email}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="p-2">
+                    <Link
+                      href="/profile"
+                      className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-gray-700 transition hover:bg-emerald-50 hover:text-emerald-700"
+                    >
+                      <PersonWorker />
+
+                      <span>আমার প্রোফাইল</span>
+                    </Link>
+
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      disabled={logoutLoading}
+                      className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <ArrowRightToSquare />
+
+                      <span>{logoutLoading ? "লগআউট হচ্ছে..." : "লগআউট"}</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-6">
+                <Link
+                  href="/signin"
+                  className="font-semibold text-gray-800 transition hover:text-emerald-600"
+                >
+                  সাইন ইন
+                </Link>
+
+                <Link
+                  href="/signup"
+                  className="rounded-lg bg-emerald-600 px-5 py-2.5 font-semibold text-white shadow-sm transition hover:bg-emerald-700"
+                >
+                  সাইন আপ
+                </Link>
+              </div>
+            )}
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* ================= MOBILE MENU BUTTON ================= */}
+
           <button
             type="button"
             onClick={() => setMenuOpen((prev) => !prev)}
@@ -141,9 +311,11 @@ export default function Navbar() {
       </div>
 
       {/* ================= CATEGORY NAV ================= */}
-      <nav className="bg-white/60 backdrop-blur-xl">
+
+      <nav className="relative z-10 bg-white/60 backdrop-blur-xl">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Desktop Categories */}
+          {/* Desktop */}
+
           <div className="hidden h-14 items-center gap-2 overflow-x-auto md:flex">
             {loading ? (
               <CategorySkeleton />
@@ -160,8 +332,8 @@ export default function Navbar() {
                     href={href}
                     className={`group flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
                       isActive
-                        ? "bg-emerald-50 text-emerald-700"
-                        : "text-gray-700 hover:bg-gray-100 hover:text-emerald-700"
+                        ? "bg-green-200"
+                        : "text-gray-700 hover:bg-gray-100 hover:text-green-400"
                     }`}
                   >
                     <span className="text-base transition-transform group-hover:scale-110">
@@ -175,7 +347,8 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile Horizontal Categories */}
+          {/* Mobile categories */}
+
           <div className="scrollbar-hide flex h-12 items-center gap-1 overflow-x-auto md:hidden">
             {loading ? (
               <CategorySkeleton />
@@ -206,33 +379,87 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* ================= MOBILE DROPDOWN ================= */}
+      {/* ================= MOBILE AUTH MENU ================= */}
+
       <div
         className={`overflow-hidden border-t border-gray-200/60 bg-white/95 backdrop-blur-xl transition-all duration-300 md:hidden ${
-          menuOpen ? "max-h-48 opacity-100" : "max-h-0 border-t-0 opacity-0"
+          menuOpen ? "max-h-80 opacity-100" : "max-h-0 border-t-0 opacity-0"
         }`}
       >
-        <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-4">
-          <Link
-            href="/signin"
-            className="rounded-lg px-4 py-2.5 text-center font-semibold text-gray-800 transition hover:bg-gray-100"
-          >
-            সাইন ইন
-          </Link>
+        <div className="container mx-auto px-4 py-4">
+          {isPending ? (
+            <div className="h-16 animate-pulse rounded-xl bg-gray-100" />
+          ) : user ? (
+            /* Logged in mobile */
+            <div>
+              <div className="mb-3 flex items-center gap-3 rounded-xl bg-emerald-50 p-3">
+                {user.image ? (
+                  <Image
+                    src={user.image}
+                    alt={user.name ?? "User"}
+                    width={40}
+                    height={40}
+                    className="h-10 w-10 rounded-full border border-emerald-100 object-cover"
+                  />
+                ) : (
+                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-emerald-600 font-bold text-white">
+                    {user.name?.charAt(0).toUpperCase() || "U"}
+                  </div>
+                )}
 
-          <Link
-            href="/signup"
-            className="rounded-lg bg-emerald-600 px-4 py-2.5 text-center font-semibold text-white transition hover:bg-emerald-700"
-          >
-            সাইন আপ
-          </Link>
+                <div className="min-w-0">
+                  <p className="truncate font-semibold text-gray-900">
+                    {user.name}
+                  </p>
+
+                  <p className="truncate text-xs text-gray-500">{user.email}</p>
+                </div>
+              </div>
+
+              <Link
+                href="/profile"
+                className="flex items-center gap-3 rounded-xl px-4 py-3 font-medium text-gray-700 hover:bg-gray-100"
+              >
+                <PersonWorker />
+                আমার প্রোফাইল
+              </Link>
+
+              <button
+                type="button"
+                onClick={handleLogout}
+                disabled={logoutLoading}
+                className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left font-medium text-red-600 hover:bg-red-50 disabled:opacity-60"
+              >
+                <ArrowRightToSquare />
+
+                {logoutLoading ? "লগআউট হচ্ছে..." : "লগআউট"}
+              </button>
+            </div>
+          ) : (
+            /* Logged out mobile */
+            <div className="flex flex-col gap-2">
+              <Link
+                href="/signin"
+                className="rounded-lg px-4 py-2.5 text-center font-semibold text-gray-800 transition hover:bg-gray-100"
+              >
+                সাইন ইন
+              </Link>
+
+              <Link
+                href="/signup"
+                className="rounded-lg bg-emerald-600 px-4 py-2.5 text-center font-semibold text-white transition hover:bg-emerald-700"
+              >
+                সাইন আপ
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </header>
   );
 }
 
-/* ================= Loading Skeleton ================= */
+/* ================= Category Skeleton ================= */
 
 function CategorySkeleton() {
   return (

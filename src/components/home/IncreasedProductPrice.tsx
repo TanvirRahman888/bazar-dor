@@ -2,7 +2,7 @@ import { Product } from '@/types';
 import ProductCard from '../product/ProductCard';
 
 const IncreasedProductPrice = async() => {
-    const res = await fetch("https://api.abcz.workers.dev/api/bazardor/products")
+    const res = await fetch("https://api.api-store.workers.dev/api/bazardor/products")
     const products: Product[]= await res.json()
 
     const increase: Product[] = products.filter(

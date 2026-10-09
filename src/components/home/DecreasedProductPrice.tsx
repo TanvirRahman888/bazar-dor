@@ -1,7 +1,7 @@
 import { Product } from "@/types";
 import ProductCard from "../product/ProductCard";
 const DecreasedProductPrice = async () => {
-  const res = await fetch("https://api.abcz.workers.dev/api/bazardor/products");
+  const res = await fetch("https://api.api-store.workers.dev/api/bazardor/products");
   const products: Product[] = await res.json();
 
   const decrease: Product[] = products.filter((product) => product.change?.dir === "down").sort((b, a) => b.change.pct - a.change.pct).slice(0, 6);

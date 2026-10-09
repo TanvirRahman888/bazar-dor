@@ -4,7 +4,7 @@ import SortDropdown from "../product/SortDropdown";
 
 export const getProducts = async (): Promise<Product[]> => {
   const res = await fetch(
-    "https://api.abcz.workers.dev/api/bazardor/products",
+    "https://api.api-store.workers.dev/api/bazardor/products",
     {
       next: {
         revalidate: 360,
@@ -32,7 +32,7 @@ const AllProduct = async () => {
           <SortDropdown />
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
         {products.map((product) => (
           <ProductCard key={product.id} product={product}></ProductCard>
         ))}
