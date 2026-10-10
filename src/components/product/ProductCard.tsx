@@ -23,12 +23,21 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
         {/* Product Name */}
         <div>
-          <h3 className="text-lg font-bold text-gray-900">
-            {product.nameBn}
-          </h3>
+          <h3 className="text-lg font-bold text-gray-900">{product.nameBn}</h3>
 
           <p className="mt-0.5 text-sm text-gray-500">
-            প্রতি {product.unit === "kg" ? "কেজি" : "লিটার"}
+            প্রতি{" "}
+            {product.unit === "kg"
+              ? "কেজি"
+              : product.unit === "liter"
+                ? "লিটার"
+                : product.unit === "litre"
+                  ? "লিটার"
+                  : product.unit === "piece"
+                    ? "পিস"
+                    : product.unit === "dozen"
+                      ? "ডজন"
+                      : product.unit}
           </p>
         </div>
       </div>
@@ -37,9 +46,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
       <div className="mt-5 flex items-end justify-between">
         {/* Price */}
         <div>
-          <p className="text-sm text-gray-500">
-            আজকের দাম
-          </p>
+          <p className="text-sm text-gray-500">আজকের দাম</p>
 
           <p className="mt-1 text-xl font-bold text-gray-900">
             ৳ {product.today.toLocaleString("bn-BD")} টাকা
@@ -56,17 +63,9 @@ const ProductCard = ({ product }: ProductCardProps) => {
                 : "bg-gray-100 text-gray-500"
           }`}
         >
-          {isUp ? (
-            <span>▲</span>
-          ) : isDown ? (
-            <span>▼</span>
-          ) : (
-            <span>●</span>
-          )}
+          {isUp ? <span>▲</span> : isDown ? <span>▼</span> : <span>●</span>}
 
-          <span>
-            {Math.abs(product.change.pct).toLocaleString("bn-BD")}%
-          </span>
+          <span>{Math.abs(product.change.pct).toLocaleString("bn-BD")}%</span>
         </div>
       </div>
     </Link>

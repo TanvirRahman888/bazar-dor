@@ -37,7 +37,7 @@ export default function Navbar() {
     const getCategories = async () => {
       try {
         const response = await fetch(
-          "https://api.abcz.workers.dev/api/bazardor/categories",
+          "https://openapi.programming-hero.com/api/bazardor/categories",
         );
 
         if (!response.ok) {

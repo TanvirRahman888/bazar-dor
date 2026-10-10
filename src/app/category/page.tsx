@@ -8,7 +8,7 @@ export interface iCategory {
 }
 export const getCategory = async (): Promise<iCategory[]> => {
   const res = await fetch(
-    "https://api.abcz.workers.dev/api/bazardor/categories",
+    "https://openapi.programming-hero.com/api/bazardor/categories",
     {
       next: {
         revalidate: 360,
