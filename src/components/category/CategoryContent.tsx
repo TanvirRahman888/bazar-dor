@@ -95,14 +95,6 @@ export async function CategoryContent({
                 <option value="high-low">
                   দাম: বেশি থেকে কম
                 </option>
-
-                <option value="increase">
-                  দাম বৃদ্ধি
-                </option>
-
-                <option value="decrease">
-                  দাম কমেছে
-                </option>
               </select>
             </div>
           </div>

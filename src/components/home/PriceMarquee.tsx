@@ -4,7 +4,7 @@ import "react-marquee-text/dist/styles.css";
 
 const PriceMarquee = async () => {
   const getProducts = await fetch(
-    "https://api.api-store.workers.dev/api/bazardor/products",
+    "https://api.abcz.workers.dev/api/bazardor/products",
     {
       next: {
         revalidate: 360,

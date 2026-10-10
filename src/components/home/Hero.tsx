@@ -7,16 +7,15 @@ const Hero = () => {
   
 
   return (
-    <section className="py-8">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid min-h-95 items-center gap-10 overflow-hidden rounded-[28px] border border-emerald-100 bg-white px-6 py-10 shadow-sm sm:px-10 lg:grid-cols-2 lg:px-14">
+      <div className="container mx-auto px-4">
+        <div className="grid min-h-95 items-center gap-10 overflow-hidden rounded-[28px] border border-emerald-100 bg-white px-6 py-16 shadow-sm sm:px-10 lg:grid-cols-2 lg:px-14">
           {/* Left Content */}
           <div>
             <span className="inline-flex rounded-full bg-emerald-100 px-4 py-1.5 text-sm font-medium text-emerald-700">
               <CurrentDate />
             </span>
 
-            <h1 className="mt-5 max-w-xl text-4xl font-bold leading-tight tracking-tight text-gray-950 sm:text-5xl lg:text-6xl">
+            <h1 className="mt-5 max-w-xl text-3xl font-bold leading-tight tracking-tight text-gray-950 sm:text-4xl lg:text-5xl">
               আজকের বাজারের দাম এক নজরে
             </h1>
 
@@ -27,7 +26,7 @@ const Hero = () => {
 
             <div className="mt-7">
               <Link
-                href="/products"
+                href="#allProduct"
                 className="inline-flex items-center justify-center rounded-xl bg-emerald-600 px-6 py-3 font-semibold text-white shadow-lg shadow-emerald-200 transition duration-200 hover:-translate-y-0.5 hover:bg-emerald-700"
               >
                 সব পণ্য দেখুন
@@ -50,7 +49,6 @@ const Hero = () => {
           </div>
         </div>
       </div>
-    </section>
   );
 };
 
