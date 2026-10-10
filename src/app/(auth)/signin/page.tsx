@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
 import {
   Button,
@@ -16,11 +16,20 @@ import { toast } from "react-hot-toast";
 import { useSearchParams } from "next/navigation";
 
 export default function SignInPage() {
+  return (
+    <Suspense fallback={<SignInLoading />}>
+      <SignInContent />
+    </Suspense>
+  );
+}
+
+function SignInContent() {
   const [showPassword, setShowPassword] = useState(false);
 
   const searchParams = useSearchParams();
 
-  const requestedURL = searchParams.get("callbackURL");
+  const requestedURL =
+    searchParams.get("callbackURL");
 
   const callbackURL =
     requestedURL &&
@@ -28,6 +37,7 @@ export default function SignInPage() {
     !requestedURL.startsWith("//")
       ? requestedURL
       : "/";
+
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -366,5 +376,20 @@ function GithubIcon() {
     <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
       <path d="M12 .7a11.3 11.3 0 0 0-3.57 22.03c.56.1.77-.24.77-.54v-2.1c-3.13.68-3.79-1.33-3.79-1.33-.51-1.3-1.25-1.65-1.25-1.65-1.02-.7.08-.68.08-.68 1.13.08 1.72 1.16 1.72 1.16 1 1.72 2.63 1.22 3.27.93.1-.73.39-1.22.71-1.5-2.5-.28-5.13-1.25-5.13-5.58 0-1.23.44-2.24 1.16-3.03-.12-.28-.5-1.43.11-2.99 0 0 .95-.3 3.11 1.16A10.8 10.8 0 0 1 12 6.2c.96 0 1.93.13 2.84.38 2.16-1.46 3.1-1.16 3.1-1.16.62 1.56.23 2.71.12 2.99.72.79 1.15 1.8 1.15 3.03 0 4.34-2.64 5.29-5.15 5.57.4.35.76 1.04.76 2.1v3.08c0 .3.2.65.77.54A11.3 11.3 0 0 0 12 .7Z" />
     </svg>
+  );
+}
+
+
+function SignInLoading() {
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-[#f4f8f4]">
+      <div className="flex flex-col items-center gap-3">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-100 border-t-emerald-600" />
+
+        <p className="text-sm text-gray-500">
+          Loading...
+        </p>
+      </div>
+    </main>
   );
 }
