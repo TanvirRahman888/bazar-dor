@@ -196,7 +196,7 @@ const ProductDetailsPage = async ({
                 </tbody>
               </table>
             </div>
-              <Button><Link href={`/category/${product.category}`}><span>{product.categoryNameBn}</span></Link></Button>
+              <Button variant="ghost" className={"text-xl font-bold my-5 p-4 p2-2"}><Link href={`/category/${product.category}`}><span>{product.categoryIcon} {" "}সব {" "}{product.categoryNameBn}</span></Link></Button>
           </div>
         </section>
       </div>
